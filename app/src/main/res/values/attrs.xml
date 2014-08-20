@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RulerView">
+        <attr name="firstUnitMin" format="float" />
+        <attr name="firstUnitMax" format="float" />
+        <attr name="secondUnitMin" format="float" />
+        <attr name="secondUnitMax" format="float" />
+    </declare-styleable>
+</resources>
