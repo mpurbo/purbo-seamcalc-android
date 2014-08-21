@@ -1,4 +1,4 @@
-package purbo.org.seamallowance;
+package org.purbo.seamallowance;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
