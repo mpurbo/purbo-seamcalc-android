@@ -3,3 +3,4 @@ local.properties
 .idea/tasks.xml
 .gradle
 tmp
+build
