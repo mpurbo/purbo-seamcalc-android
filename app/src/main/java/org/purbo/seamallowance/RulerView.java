@@ -30,9 +30,7 @@ public class RulerView extends View {
     private ScaleGestureDetector scaleDetector;
     private float scaleFactor = 1.f;
     private float posX;
-    private float posY;
     private float lastTouchX;
-    private float lastTouchY;
     private int activePointerId = INVALID_POINTER_ID;
 
     public RulerView(Context context, AttributeSet attrs) {
@@ -59,14 +57,21 @@ public class RulerView extends View {
         super.onDraw(canvas);
 
         canvas.save();
+        canvas.translate(posX, 0);
+        /*
         canvas.translate(posX, posY);
         canvas.scale(scaleFactor, scaleFactor);
+        */
 
         Paint paint = new Paint();
         paint.setColor(foregroundColor);
 
-        //canvas.drawLine(0, getMeasuredHeight()/2, getMeasuredWidth(), getMeasuredHeight()/2, paint);
-        canvas.drawLine(0, 0, getMeasuredWidth(), getMeasuredHeight(), paint);
+        // main horizontal
+        canvas.drawLine(0, getMeasuredHeight()/2, getMeasuredWidth() * scaleFactor, getMeasuredHeight()/2, paint);
+        // min vertical
+        canvas.drawLine(0, getMeasuredHeight()*0.25f, 0, getMeasuredHeight()*0.75f, paint);
+        // max vertical
+        canvas.drawLine(getMeasuredWidth() * scaleFactor, getMeasuredHeight()*0.25f, getMeasuredWidth() * scaleFactor, getMeasuredHeight()*0.75f, paint);
 
         canvas.restore();
     }
@@ -80,10 +85,8 @@ public class RulerView extends View {
         switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
                 final float x = ev.getX();
-                final float y = ev.getY();
 
                 lastTouchX = x;
-                lastTouchY = y;
                 activePointerId = ev.getPointerId(0);
                 break;
             }
@@ -91,22 +94,18 @@ public class RulerView extends View {
             case MotionEvent.ACTION_MOVE: {
                 final int pointerIndex = ev.findPointerIndex(activePointerId);
                 final float x = ev.getX(pointerIndex);
-                final float y = ev.getY(pointerIndex);
 
                 // Only move if the ScaleGestureDetector isn't processing a gesture.
                 if (!scaleDetector.isInProgress()) {
                     final float dx = x - lastTouchX;
-                    final float dy = y - lastTouchY;
 
                     posX += dx;
-                    posY += dy;
+                    if (posX > 0) posX = 0;
 
                     invalidate();
                 }
 
                 lastTouchX = x;
-                lastTouchY = y;
-
                 break;
             }
 
@@ -129,7 +128,6 @@ public class RulerView extends View {
                     // active pointer and adjust accordingly.
                     final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
                     lastTouchX = ev.getX(newPointerIndex);
-                    lastTouchY = ev.getY(newPointerIndex);
                     activePointerId = ev.getPointerId(newPointerIndex);
                 }
                 break;
