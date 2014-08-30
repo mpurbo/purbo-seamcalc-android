@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -13,6 +14,8 @@ import android.view.View;
  * Created by purbo on 8/20/14.
  */
 public class RulerView extends View {
+
+    private static final String TAG = "seamallowance.RulerView";
 
     private static final int INVALID_POINTER_ID = -1;
 
@@ -31,6 +34,7 @@ public class RulerView extends View {
     private float scaleFactor = 1.f;
     private float posX;
     private float lastTouchX;
+    private float scaledWidth;
     private int activePointerId = INVALID_POINTER_ID;
 
     public RulerView(Context context, AttributeSet attrs) {
@@ -58,20 +62,29 @@ public class RulerView extends View {
 
         canvas.save();
         canvas.translate(posX, 0);
-        /*
-        canvas.translate(posX, posY);
-        canvas.scale(scaleFactor, scaleFactor);
-        */
 
         Paint paint = new Paint();
         paint.setColor(foregroundColor);
 
+        scaledWidth = getWidth() * scaleFactor;
+
+        float h = getHeight();
+
+        float hx1 = 0;
+        float hx2 = scaledWidth;
+        float hy = h / 2.f;
+
+        float vy1 = h * .25f;
+        float vy2 = h * .75f;
+
         // main horizontal
-        canvas.drawLine(0, getMeasuredHeight()/2, getMeasuredWidth() * scaleFactor, getMeasuredHeight()/2, paint);
+        canvas.drawLine(hx1, hy, hx2, hy, paint);
         // min vertical
-        canvas.drawLine(0, getMeasuredHeight()*0.25f, 0, getMeasuredHeight()*0.75f, paint);
+        canvas.drawLine(hx1, vy1, hx1, vy2, paint);
+        // mid vertical
+        canvas.drawLine(hx2/2.f, vy1, hx2/2.f, vy2, paint);
         // max vertical
-        canvas.drawLine(getMeasuredWidth() * scaleFactor, getMeasuredHeight()*0.25f, getMeasuredWidth() * scaleFactor, getMeasuredHeight()*0.75f, paint);
+        canvas.drawLine(hx2 - 1, vy1, hx2 - 1, vy2, paint);
 
         canvas.restore();
     }
@@ -100,7 +113,13 @@ public class RulerView extends View {
                     final float dx = x - lastTouchX;
 
                     posX += dx;
-                    if (posX > 0) posX = 0;
+
+                    if (scaledWidth < getWidth()) {
+                        posX = 0;
+                    } else {
+                        if (posX > 0) posX = 0;
+                        if (posX < getWidth() - scaledWidth) posX = getWidth() - scaledWidth;
+                    }
 
                     invalidate();
                 }
@@ -202,7 +221,7 @@ public class RulerView extends View {
         public boolean onScale(ScaleGestureDetector detector) {
             scaleFactor *= detector.getScaleFactor();
 
-            // Don't let the object get too small or too large.
+            // Don't let the ruler get too small or too large.
             scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 10.0f));
 
             invalidate();
