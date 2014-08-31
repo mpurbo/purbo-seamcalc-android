@@ -18,6 +18,7 @@ public class RulerView extends View {
     private static final String TAG = "seamallowance.RulerView";
 
     private static final int INVALID_POINTER_ID = -1;
+    private static final float WIDTH_FACTOR = .9f;
 
     float firstUnitMin;
     float firstUnitMax;
@@ -67,11 +68,13 @@ public class RulerView extends View {
         paint.setColor(foregroundColor);
 
         scaledWidth = getWidth() * scaleFactor;
-
         float h = getHeight();
 
-        float hx1 = 0;
-        float hx2 = scaledWidth;
+        float margin = (scaledWidth * (1.f - WIDTH_FACTOR)) / 2.f;
+        float effectiveWidth = scaledWidth * WIDTH_FACTOR;
+
+        float hx1 = margin;
+        float hx2 = scaledWidth - margin;
         float hy = h / 2.f;
 
         float vy1 = h * .25f;
@@ -82,7 +85,7 @@ public class RulerView extends View {
         // min vertical
         canvas.drawLine(hx1, vy1, hx1, vy2, paint);
         // mid vertical
-        canvas.drawLine(hx2/2.f, vy1, hx2/2.f, vy2, paint);
+        canvas.drawLine(hx1 + effectiveWidth/2.f, vy1, hx1 + effectiveWidth/2.f, vy2, paint);
         // max vertical
         canvas.drawLine(hx2 - 1, vy1, hx2 - 1, vy2, paint);
 
